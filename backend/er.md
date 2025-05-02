@@ -16,6 +16,7 @@ erDiagram
         UUID id PK
         UUID org_id FK
         TEXT email
+        TEXT name
         TEXT hashed_password
         TIMESTAMPTZ created_at
     }
@@ -45,7 +46,7 @@ erDiagram
         UUID event_id FK
         UUID survey_id FK
         %% /* none | optional_any | optional_org */ %%
-        TEXT email_requirement
+        ENUM email_requirement
         TIMESTAMPTZ launched_at
     }
 

@@ -1,34 +1,31 @@
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel, EmailStr
 
 
 class UserBase(BaseModel):
     email: EmailStr
-    full_name: str | None = None
-    is_active: bool | None = True
+    name: str | None = None
 
 
 class UserCreate(UserBase):
     password: str
+    org_id: UUID
 
 
 class UserUpdate(UserBase):
     password: str | None = None
+    org_id: UUID | None = None
 
 
-class UserInDBBase(UserBase):
-    id: int
+class UserRead(UserBase):
+    id: UUID
+    org_id: UUID
     created_at: datetime
-    updated_at: datetime | None = None
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
-class User(UserInDBBase):
-    pass
-
-
-class UserInDB(UserInDBBase):
+class UserInDB(UserRead):
     hashed_password: str

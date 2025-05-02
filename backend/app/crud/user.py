@@ -17,9 +17,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     async def create(self, db: AsyncSession, *, obj_in: UserCreate) -> User:
         db_obj = User(
             email=obj_in.email,
+            name=obj_in.name,
             hashed_password=get_password_hash(obj_in.password),
-            full_name=obj_in.full_name,
-            is_active=obj_in.is_active,
+            org_id=obj_in.org_id,
         )
         db.add(db_obj)
         await db.commit()
