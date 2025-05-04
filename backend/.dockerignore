@@ -1,0 +1,42 @@
+# Git files
+.git
+.gitignore
+
+# Python cache and environment files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# IDE and OS specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Docker specific files (that shouldn't be copied into the image itself)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Environment files (should be mounted or passed via compose, not copied)
+.env
+*.env
+.env.*
+
+# Test files (optional, depends on your structure)
+# tests/
+# test_*.py
+# pytest.ini
+
+# Other files
+README.md
+er.md
+requirements-dev.txt
+pyproject.toml 

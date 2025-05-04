@@ -1,9 +1,9 @@
 import uuid
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import TIMESTAMP, Column, ForeignKey, String
+from sqlalchemy import TIMESTAMP, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, mapped_column
 from sqlalchemy.sql import func
 
 from app.db.base_class import Base
@@ -14,14 +14,13 @@ if TYPE_CHECKING:
 
 
 class User(Base):
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    org_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"), nullable=False)
-    email = Column(String, unique=True, index=True, nullable=False)
-    name = Column(String, nullable=True)
-    hashed_password = Column(String, nullable=False)
-    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    org_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("organizations.id"), nullable=False)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
+    name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    hashed_password: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
 
     # Relationship
-    organization: Mapped["Organization"] = relationship(
-        "Organization", back_populates="users"
-    )
+    organization: Mapped["Organization"] = relationship("Organization", back_populates="users")
