@@ -3,13 +3,15 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from app.models.event import EventStatus
+
 
 class EventBase(BaseModel):
     name: str
     description: str | None = None
     start_dt: datetime
     end_dt: datetime
-    status: str
+    status: EventStatus
     org_id: UUID
 
 
@@ -22,7 +24,7 @@ class EventUpdate(BaseModel):
     description: str | None = None
     start_dt: datetime | None = None
     end_dt: datetime | None = None
-    status: str | None = None
+    status: EventStatus | None = None
     org_id: UUID | None = None
 
 
