@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
-from app.models.event import Event
+from app.models.event import Event, EventStatus
 from app.schemas.event import EventCreate, EventUpdate
 
 
@@ -34,7 +34,7 @@ class CRUDEvent(CRUDBase[Event, EventCreate, EventUpdate]):
         return result.scalars().all()
 
     async def get_by_status(
-        self, db: AsyncSession, *, status: str, org_id: UUID
+        self, db: AsyncSession, *, status: EventStatus, org_id: UUID
     ) -> list[Event]:
         result = await db.execute(
             select(Event).where(Event.status == status).where(Event.org_id == org_id)

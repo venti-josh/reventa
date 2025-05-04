@@ -21,6 +21,20 @@ class CRUDLink(CRUDBase[Link, LinkCreate, LinkUpdate]):
         )
         return result.scalars().all()
 
+    async def get_by_id(self, db: AsyncSession, *, id: UUID) -> Link | None:
+        """
+        Get a link by its ID and validate it's not expired
+        """
+        from datetime import datetime
+
+        now = datetime.now()
+        result = await db.execute(
+            select(Link)
+            .where(Link.id == id)
+            .where((Link.expires_at > now) | (Link.expires_at.is_(None)))
+        )
+        return result.scalar_one_or_none()
+
     async def get_active_links(self, db: AsyncSession, *, org_id: UUID) -> list[Link]:
         from datetime import datetime
 

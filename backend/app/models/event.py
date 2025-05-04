@@ -1,7 +1,8 @@
+import enum
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import TIMESTAMP, Column, ForeignKey, String
+from sqlalchemy import TIMESTAMP, Column, Enum, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -13,6 +14,14 @@ if TYPE_CHECKING:
     from .survey_instance import SurveyInstance
 
 
+class EventStatus(str, enum.Enum):
+    DRAFT = "draft"
+    SCHEDULED = "scheduled"
+    ACTIVE = "active"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+
+
 class Event(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     org_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"), nullable=False)
@@ -20,7 +29,7 @@ class Event(Base):
     description = Column(String)
     start_dt = Column(TIMESTAMP(timezone=True), nullable=False)
     end_dt = Column(TIMESTAMP(timezone=True), nullable=False)
-    status = Column(String, nullable=False)
+    status = Column(Enum(EventStatus), nullable=False)
 
     # Relationships
     organization: Mapped["Organization"] = relationship(
