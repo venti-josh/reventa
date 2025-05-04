@@ -1,31 +1,32 @@
 import uuid
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import TIMESTAMP, Boolean, Column, ForeignKey, String
+from sqlalchemy import TIMESTAMP, Boolean, ForeignKey, String
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, mapped_column
 from sqlalchemy.sql import func
 
 from app.db.base_class import Base
 from app.models.types import Mapped
+from app.models.organization import Organization
 
 if TYPE_CHECKING:
-    from .organization import Organization
     from .survey_instance import SurveyInstance
 
 
 class Survey(Base):
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    org_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"), nullable=False)
-    title = Column(String, nullable=False)
-    schema = Column(JSONB, nullable=False)
-    is_published = Column(Boolean, default=False, nullable=False)
-    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    org_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey(Organization.id), nullable=False)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    schema: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    is_published: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    created_at: Mapped[Optional[TIMESTAMP]] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
 
     # Relationships
-    organization: Mapped["Organization"] = relationship(
-        "Organization", back_populates="surveys"
+    organization: Mapped[Organization] = relationship(
+        Organization, back_populates="surveys"
     )
-    survey_instances: Mapped[list["SurveyInstance"]] = relationship(
+    # Must use string reference to avoid circular import with SurveyInstance
+    survey_instances: Mapped[List["SurveyInstance"]] = relationship(
         "SurveyInstance", back_populates="survey", cascade="all, delete-orphan"
     )

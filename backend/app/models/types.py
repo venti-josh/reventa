@@ -1,7 +1,11 @@
 """Type helpers for SQLAlchemy ORM models."""
 
-from typing import Any, TypeVar, Union
+from typing import TypeVar, Annotated, Any
+from sqlalchemy.orm import mapped_column, relationship
 
-# Create a type alias for Mapped that works with older SQLAlchemy versions
+# Import the proper Mapped type directly from SQLAlchemy
+from sqlalchemy.orm import Mapped as SQLAMapped
+
 T = TypeVar("T")
-Mapped = Union[T, Any]  # noqa: UP007 - Using Union for compatibility alias
+# Use the real SQLAlchemy Mapped type
+Mapped = SQLAMapped

@@ -1,9 +1,9 @@
 import uuid
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
-from sqlalchemy import TIMESTAMP, Column, String
+from sqlalchemy import TIMESTAMP, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, mapped_column
 from sqlalchemy.sql import func
 
 from app.db.base_class import Base
@@ -20,29 +20,30 @@ if TYPE_CHECKING:
 
 
 class Organization(Base):
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name = Column(String, nullable=False)
-    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
 
-    # Relationships
-    allowed_domains: Mapped[list["OrgAllowedDomain"]] = relationship(
+    # All relationships must use string references because Organization is imported by all other models
+    # Using direct class references would create circular imports
+    allowed_domains: Mapped[List["OrgAllowedDomain"]] = relationship(
         "OrgAllowedDomain", back_populates="organization", cascade="all, delete-orphan"
     )
-    users: Mapped[list["User"]] = relationship(
+    users: Mapped[List["User"]] = relationship(
         "User", back_populates="organization", cascade="all, delete-orphan"
     )
-    events: Mapped[list["Event"]] = relationship(
+    events: Mapped[List["Event"]] = relationship(
         "Event", back_populates="organization", cascade="all, delete-orphan"
     )
-    surveys: Mapped[list["Survey"]] = relationship(
+    surveys: Mapped[List["Survey"]] = relationship(
         "Survey", back_populates="organization", cascade="all, delete-orphan"
     )
-    survey_instances: Mapped[list["SurveyInstance"]] = relationship(
+    survey_instances: Mapped[List["SurveyInstance"]] = relationship(
         "SurveyInstance", back_populates="organization", cascade="all, delete-orphan"
     )
-    links: Mapped[list["Link"]] = relationship(
+    links: Mapped[List["Link"]] = relationship(
         "Link", back_populates="organization", cascade="all, delete-orphan"
     )
-    survey_responses: Mapped[list["SurveyResponse"]] = relationship(
+    survey_responses: Mapped[List["SurveyResponse"]] = relationship(
         "SurveyResponse", back_populates="organization", cascade="all, delete-orphan"
     )

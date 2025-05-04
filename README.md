@@ -118,3 +118,76 @@ The API documentation (Swagger UI) will be available at [http://127.0.0.1:8000/d
 ## Frontend
 
 (Add details about the frontend if applicable)
+
+## Docker Setup (Backend)
+
+This section describes how to run the backend API and PostgreSQL database using Docker and Docker Compose.
+
+### Prerequisites
+
+- Docker: [Install Docker](https://docs.docker.com/get-docker/)
+- Docker Compose: Usually included with Docker Desktop.
+
+### Setup
+
+1.  **Navigate to the backend directory:**
+    ```bash
+    cd backend
+    ```
+2.  **Create Environment File:**
+    Copy the example environment file and customize it if necessary. The `docker-compose.yml` file is configured to read this `.env` file.
+    ```bash
+    cp .env.example .env
+    ```
+    *Note:* The default values in `docker-compose.yml` and `Dockerfile` should work for local development (user: `postgres`, password: `postgres`, db: `fastapi_skeleton`, host: `postgres`). You mainly need to ensure `SECRET_KEY` is set in the `.env` file for security.
+
+### Running the Services
+
+1.  **Build and Start Containers:**
+    This command builds the API image (if it doesn't exist or `Dockerfile` changed) and starts both the API and PostgreSQL containers in detached mode (`-d`).
+    ```bash
+    docker-compose up --build -d
+    ```
+2.  **Check Container Status:**
+    ```bash
+    docker-compose ps
+    ```
+    You should see both `fastapi_api` and `fastapi_postgres` running.
+
+3.  **Apply Database Migrations:**
+    The API service needs the database schema to be set up. Run the Alembic migrations inside the running API container:
+    ```bash
+    docker-compose exec api alembic upgrade head
+    ```
+
+4.  **Access the API:**
+    The API should now be running and accessible:
+    - **API Root:** [http://localhost:8000/](http://localhost:8000/)
+    - **Swagger Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
+
+### Development Workflow
+
+- **Hot Reloading:** The `docker-compose.yml` is configured to mount the local `backend` directory into the `/app` directory in the `api` container. The `uvicorn` command also uses the `--reload` flag. This means changes you make to the Python code locally should automatically trigger the server to restart within the container.
+- **Viewing Logs:**
+    ```bash
+    docker-compose logs -f api # Follow API logs
+    docker-compose logs -f postgres # Follow PostgreSQL logs
+    ```
+- **Stopping Services:**
+    To stop the containers:
+    ```bash
+    docker-compose down
+    ```
+    Add `-v` to also remove the named volume (`postgres_data`) containing the database data:
+    ```bash
+    docker-compose down -v
+    ```
+
+### Database Access
+
+- **Connect via `psql`:** You can connect to the PostgreSQL database running inside the container.
+    ```bash
+    docker-compose exec postgres psql -U postgres -d fastapi_skeleton
+    ```
+    (The default user and db name are used here; adjust if you changed them in `.env`).
+- **Data Persistence:** The `postgres_data` volume ensures your database data persists even if you stop and remove the containers (unless you use `docker-compose down -v`).
