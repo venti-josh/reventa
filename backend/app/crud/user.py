@@ -26,9 +26,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         await db.refresh(db_obj)
         return db_obj
 
-    async def update(
-        self, db: AsyncSession, *, db_obj: User, obj_in: UserUpdate | dict[str, Any]
-    ) -> User:
+    async def update(self, db: AsyncSession, *, db_obj: User, obj_in: UserUpdate | dict[str, Any]) -> User:
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
@@ -39,21 +37,13 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             update_data["hashed_password"] = hashed_password
         return await super().update(db, db_obj=db_obj, obj_in=update_data)
 
-    async def authenticate(
-        self, db: AsyncSession, *, email: str, password: str
-    ) -> User | None:
+    async def authenticate(self, db: AsyncSession, *, email: str, password: str) -> User | None:
         user = await self.get_by_email(db, email=email)
         if not user:
             return None
         if not verify_password(password, user.hashed_password):
             return None
         return user
-
-    def is_active(self, user: User) -> bool:
-        return user.is_active
-
-    def is_superuser(self, user: User) -> bool:
-        return user.is_superuser
 
 
 user_crud = CRUDUser(User)

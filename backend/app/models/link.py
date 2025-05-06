@@ -1,12 +1,11 @@
 import uuid
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from sqlalchemy import TIMESTAMP, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base_class import Base
-from app.models.types import Mapped
 from app.models.organization import Organization
 from app.models.survey_instance import SurveyInstance
 
@@ -21,12 +20,8 @@ class Link(Base):
     survey_instance_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey(SurveyInstance.id), nullable=False
     )
-    expires_at: Mapped[Optional[TIMESTAMP]] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
+    expires_at: Mapped[TIMESTAMP | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
 
     # Relationships
-    organization: Mapped[Organization] = relationship(
-        Organization, back_populates="links"
-    )
-    survey_instance: Mapped[SurveyInstance] = relationship(
-        SurveyInstance, back_populates="links"
-    )
+    organization: Mapped[Organization] = relationship(Organization, back_populates="links")
+    survey_instance: Mapped[SurveyInstance] = relationship(SurveyInstance, back_populates="links")

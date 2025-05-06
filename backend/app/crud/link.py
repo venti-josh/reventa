@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from uuid import UUID
 
 from sqlalchemy import select
@@ -9,16 +10,12 @@ from app.schemas.link import LinkCreate, LinkUpdate
 
 
 class CRUDLink(CRUDBase[Link, LinkCreate, LinkUpdate]):
-    async def get_by_org_id(self, db: AsyncSession, *, org_id: UUID) -> list[Link]:
+    async def get_by_org_id(self, db: AsyncSession, *, org_id: UUID) -> Sequence[Link]:
         result = await db.execute(select(Link).where(Link.org_id == org_id))
         return result.scalars().all()
 
-    async def get_by_survey_instance_id(
-        self, db: AsyncSession, *, survey_instance_id: UUID
-    ) -> list[Link]:
-        result = await db.execute(
-            select(Link).where(Link.survey_instance_id == survey_instance_id)
-        )
+    async def get_by_survey_instance_id(self, db: AsyncSession, *, survey_instance_id: UUID) -> Sequence[Link]:
+        result = await db.execute(select(Link).where(Link.survey_instance_id == survey_instance_id))
         return result.scalars().all()
 
     async def get_by_id(self, db: AsyncSession, *, id: UUID) -> Link | None:
@@ -29,22 +26,18 @@ class CRUDLink(CRUDBase[Link, LinkCreate, LinkUpdate]):
 
         now = datetime.now()
         result = await db.execute(
-            select(Link)
-            .where(Link.id == id)
-            .where((Link.expires_at > now) | (Link.expires_at.is_(None)))
+            select(Link).where(Link.id == id).where((Link.expires_at > now) | (Link.expires_at.is_(None)))
         )
         return result.scalar_one_or_none()
 
-    async def get_active_links(self, db: AsyncSession, *, org_id: UUID) -> list[Link]:
+    async def get_active_links(self, db: AsyncSession, *, org_id: UUID) -> Sequence[Link]:
         from datetime import datetime
 
         from sqlalchemy import or_
 
         now = datetime.now()
         result = await db.execute(
-            select(Link)
-            .where(Link.org_id == org_id)
-            .where(or_(Link.expires_at > now, Link.expires_at.is_(None)))
+            select(Link).where(Link.org_id == org_id).where(or_(Link.expires_at > now, Link.expires_at.is_(None)))
         )
         return result.scalars().all()
 

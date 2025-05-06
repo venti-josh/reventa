@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.api import api_router
 from app.core.config import settings
-from app.routers import user_router
 
 app = FastAPI(
     title="FastAPI Skeleton",
@@ -20,7 +20,7 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(user_router.router, prefix="/api/v1/users", tags=["users"])
+app.include_router(api_router)  # Include all v1 API routers
 
 
 @app.get("/")

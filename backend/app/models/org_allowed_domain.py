@@ -3,10 +3,9 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base_class import Base
-from app.models.types import Mapped
 from app.models.organization import Organization
 
 if TYPE_CHECKING:
@@ -19,6 +18,4 @@ class OrgAllowedDomain(Base):
     domain: Mapped[str] = mapped_column(String, nullable=False)
 
     # Relationship
-    organization: Mapped[Organization] = relationship(
-        Organization, back_populates="allowed_domains"
-    )
+    organization: Mapped[Organization] = relationship(Organization, back_populates="allowed_domains")

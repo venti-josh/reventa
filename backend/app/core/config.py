@@ -18,9 +18,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     # CORS settings
-    BACKEND_CORS_ORIGINS: list[str] = [
-        "http://localhost:3000"
-    ]  # Default to local frontend
+    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000"]  # Default to local frontend
     ENVIRONMENT: str = "development"  # development, staging, production
 
     @property
