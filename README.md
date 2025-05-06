@@ -93,13 +93,50 @@ The API documentation (Swagger UI) will be available at [http://127.0.0.1:8000/d
 
 ### API Endpoints
 
-#### Users
+The API is organized under the `/api/v1` prefix with the following endpoints:
 
-- `GET /api/v1/users/` - List users
-- `POST /api/v1/users/` - Create user
-- `GET /api/v1/users/{user_id}` - Get user by ID
-- `PUT /api/v1/users/{user_id}` - Update user
-- `DELETE /api/v1/users/{user_id}` - Delete user
+#### Authentication
+
+- `POST /api/v1/auth/token` - Login to get JWT access token
+- `POST /api/v1/auth/register` - Register a new user
+- `GET /api/v1/auth/me` - Get current authenticated user information
+
+#### Events
+
+- `GET /api/v1/events/` - List all events (can filter by organization ID)
+- `POST /api/v1/events/` - Create a new event
+- `GET /api/v1/events/{id}` - Get event details by ID
+- `PATCH /api/v1/events/{id}` - Update an event
+- `DELETE /api/v1/events/{id}` - Delete an event
+- `POST /api/v1/events/{id}/surveys/{survey_id}/launch` - Launch a survey for an event
+
+#### Surveys
+
+- `GET /api/v1/surveys/` - List all surveys
+- `POST /api/v1/surveys/` - Create a new survey
+- `GET /api/v1/surveys/{id}` - Get survey details by ID
+- `PATCH /api/v1/surveys/{id}` - Update a survey (if not published)
+- `POST /api/v1/surveys/{id}/publish` - Publish a survey (marking it as unchangeable)
+
+#### Survey Instances
+
+- `GET /api/v1/survey-instances/` - List all survey instances
+- `GET /api/v1/survey-instances/{id}` - Get survey instance details
+
+#### Organization Domains
+
+- `GET /api/v1/org/domains/` - List organization domains
+- `POST /api/v1/org/domains/` - Add a domain to an organization
+
+#### Public Links
+
+- `GET /api/v1/l/{uuid}` - Get public survey form by link UUID
+- `POST /api/v1/l/{uuid}/submit` - Submit a response to a survey
+
+#### Statistics
+
+- `GET /api/v1/events/{id}/stats` - Get statistics for an event
+- `GET /api/v1/surveys/{id}/responses/export` - Export survey responses as CSV
 
 ### Development Notes
 

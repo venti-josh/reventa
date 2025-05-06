@@ -1,8 +1,8 @@
-"""Initial migration with mapped_column
+"""initial
 
-Revision ID: 07370be5e35a
+Revision ID: 2b4c55f6f810
 Revises:
-Create Date: 2025-05-04 16:42:52.366924
+Create Date: 2025-05-05 22:17:05.207301
 
 """
 
@@ -14,7 +14,7 @@ from sqlalchemy.dialects import postgresql
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "07370be5e35a"
+revision: str = "2b4c55f6f810"
 down_revision: str | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None

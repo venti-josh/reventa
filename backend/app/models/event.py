@@ -22,8 +22,8 @@ class EventStatus(str, enum.Enum):
 
 
 class Event(Base):
-    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    org_id: Mapped[UUID] = mapped_column(ForeignKey(Organization.id))
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=uuid.uuid4)
+    org_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey(Organization.id))
     name: Mapped[str]
     description: Mapped[str | None]
     start_dt: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP(timezone=True))
