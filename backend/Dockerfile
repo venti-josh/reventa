@@ -28,16 +28,16 @@ COPY . .
 EXPOSE 8000
 
 # Define environment variables (can be overridden by docker-compose)
-ENV DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres/fastapi_skeleton
+ENV DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres/reventa
 # Change this in production!
 ENV SECRET_KEY=your_secret_key_here
 ENV ACCESS_TOKEN_EXPIRE_MINUTES=30
 ENV POSTGRES_SERVER=postgres
 ENV POSTGRES_USER=postgres
 ENV POSTGRES_PASSWORD=postgres
-ENV POSTGRES_DB=fastapi_skeleton
+ENV POSTGRES_DB=reventa
 ENV ENVIRONMENT=development
 
 # Run the application using uvicorn
 # Add --reload for development to auto-reload on code changes
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"] 
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"] 

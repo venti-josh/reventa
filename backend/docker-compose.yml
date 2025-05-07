@@ -9,13 +9,13 @@ services:
       - .env
     environment:
       # Default/fallback values if not set in .env
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres/fastapi_skeleton
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres/reventa
       - SECRET_KEY=compose_secret_key
       - ACCESS_TOKEN_EXPIRE_MINUTES=30
       - POSTGRES_SERVER=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=fastapi_skeleton
+      - POSTGRES_DB=reventa
       - ENVIRONMENT=development
     ports:
       - "8000:8000"
@@ -38,7 +38,7 @@ services:
       # Default/fallback values if not set in .env
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-fastapi_skeleton}
+      POSTGRES_DB: ${POSTGRES_DB:-reventa}
     ports:
       - "5432:5432"
     volumes:

@@ -4,11 +4,11 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.security import hash_email
 from app.crud.link import link_crud
 from app.crud.survey_response import survey_response_crud
 from app.db.session import get_async_session
 from app.schemas.survey_response import SurveyResponseCreate, SurveyResponseRead
-from backend.app.core.security import hash_email
 
 router = APIRouter()
 

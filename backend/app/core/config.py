@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "FastAPI Skeleton"
+    PROJECT_NAME: str = "Reventa API"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
 
@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
-    POSTGRES_DB: str = "fastapi_skeleton"
+    POSTGRES_DB: str = "reventa"
     DATABASE_URL: str | None = None
 
     # Security settings

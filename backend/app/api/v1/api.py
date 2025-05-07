@@ -4,6 +4,7 @@ from app.routers import (
     auth,
     events,
     org_domains,
+    organizations,
     public,
     stats,
     survey_instances,
@@ -14,6 +15,7 @@ api_router = APIRouter(prefix="/api/v1")
 
 # Include all routers
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
+api_router.include_router(organizations.router, prefix="/org", tags=["organizations"])
 api_router.include_router(org_domains.router, prefix="/org/domains", tags=["organization domains"])
 api_router.include_router(events.router, prefix="/events", tags=["events"])
 api_router.include_router(surveys.router, prefix="/surveys", tags=["surveys"])

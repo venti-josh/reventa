@@ -75,7 +75,7 @@ backend/
     POSTGRES_SERVER=localhost
     POSTGRES_USER=postgres
     POSTGRES_PASSWORD=postgres
-    POSTGRES_DB=fastapi_skeleton
+    POSTGRES_DB=reventa
     SECRET_KEY=your-secret-key
     ACCESS_TOKEN_EXPIRE_MINUTES=30
     ```
@@ -176,7 +176,7 @@ This section describes how to run the backend API and PostgreSQL database using 
     ```bash
     cp .env.example .env
     ```
-    *Note:* The default values in `docker-compose.yml` and `Dockerfile` should work for local development (user: `postgres`, password: `postgres`, db: `fastapi_skeleton`, host: `postgres`). You mainly need to ensure `SECRET_KEY` is set in the `.env` file for security.
+    *Note:* The default values in `docker-compose.yml` and `Dockerfile` should work for local development (user: `postgres`, password: `postgres`, db: `reventa`, host: `postgres`). You mainly need to ensure `SECRET_KEY` is set in the `.env` file for security.
 
 ### Running the Services
 
@@ -224,7 +224,7 @@ This section describes how to run the backend API and PostgreSQL database using 
 
 - **Connect via `psql`:** You can connect to the PostgreSQL database running inside the container.
     ```bash
-    docker-compose exec postgres psql -U postgres -d fastapi_skeleton
+    docker-compose exec postgres psql -U postgres -d reventa
     ```
     (The default user and db name are used here; adjust if you changed them in `.env`).
 - **Data Persistence:** The `postgres_data` volume ensures your database data persists even if you stop and remove the containers (unless you use `docker-compose down -v`).
