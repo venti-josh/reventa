@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.api import api_router
 from app.core.config import settings
-from app.routers import user_router
 
 app = FastAPI(
-    title="FastAPI Skeleton",
-    description="A skeleton FastAPI application with basic user management",
+    title="Reventa API",
+    description="API for the Reventa platform",
     version="1.0.0",
 )
 
@@ -20,9 +20,15 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(user_router.router, prefix="/api/v1/users", tags=["users"])
+app.include_router(api_router)  # Include all v1 API routers
 
 
 @app.get("/")
 async def root() -> dict[str, str]:
-    return {"message": "Welcome to FastAPI Skeleton API"}
+    return {"message": "Welcome to Reventa API"}
+
+
+# backend/app/main.py (or similar)
+@app.get("/healthz")
+def health() -> dict[str, bool]:
+    return {"ok": True}

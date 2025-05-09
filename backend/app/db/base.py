@@ -8,3 +8,4 @@ from app.models.survey import Survey  # noqa
 from app.models.survey_instance import SurveyInstance  # noqa
 from app.models.link import Link  # noqa
 from app.models.survey_response import SurveyResponse  # noqa
+from app.models.chat_history import ChatHistory  # noqa

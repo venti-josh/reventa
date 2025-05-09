@@ -12,8 +12,8 @@ class OrganizationCreate(OrganizationBase):
     pass
 
 
-class OrganizationUpdate(OrganizationBase):
-    pass
+class OrganizationUpdate(BaseModel):
+    name: str | None = None
 
 
 class OrganizationRead(OrganizationBase):

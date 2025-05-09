@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from uuid import UUID
 
 from sqlalchemy import select
@@ -13,16 +14,12 @@ class CRUDSurvey(CRUDBase[Survey, SurveyCreate, SurveyUpdate]):
         result = await db.execute(select(Survey).where(Survey.title == title))
         return result.scalar_one_or_none()
 
-    async def get_by_org_id(self, db: AsyncSession, *, org_id: UUID) -> list[Survey]:
+    async def get_by_org_id(self, db: AsyncSession, *, org_id: UUID) -> Sequence[Survey]:
         result = await db.execute(select(Survey).where(Survey.org_id == org_id))
         return result.scalars().all()
 
-    async def get_published(self, db: AsyncSession, *, org_id: UUID) -> list[Survey]:
-        result = await db.execute(
-            select(Survey)
-            .where(Survey.org_id == org_id)
-            .where(Survey.is_published is True)
-        )
+    async def get_published(self, db: AsyncSession, *, org_id: UUID) -> Sequence[Survey]:
+        result = await db.execute(select(Survey).where(Survey.org_id == org_id).where(Survey.is_published == True))
         return result.scalars().all()
 
 

@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "FastAPI Skeleton"
+    PROJECT_NAME: str = "Reventa API"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
 
@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
-    POSTGRES_DB: str = "fastapi_skeleton"
+    POSTGRES_DB: str = "reventa"
     DATABASE_URL: str | None = None
 
     # Security settings
@@ -18,10 +18,13 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     # CORS settings
-    BACKEND_CORS_ORIGINS: list[str] = [
-        "http://localhost:3000"
-    ]  # Default to local frontend
+    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000"]  # Default to local frontend
     ENVIRONMENT: str = "development"  # development, staging, production
+
+    # Chat settings
+    OPENAI_API_KEY: str = "sk-your-api-key"
+    CHAT_MODEL: str = "gpt-4o-mini"
+    CHAT_MEMORY_TYPE: str = "buffer"  # "buffer" or "postgres"
 
     @property
     def sqlalchemy_database_uri(self) -> str:
