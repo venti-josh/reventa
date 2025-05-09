@@ -21,6 +21,11 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000"]  # Default to local frontend
     ENVIRONMENT: str = "development"  # development, staging, production
 
+    # Chat settings
+    OPENAI_API_KEY: str = "sk-your-api-key"
+    CHAT_MODEL: str = "gpt-4o-mini"
+    CHAT_MEMORY_TYPE: str = "buffer"  # "buffer" or "postgres"
+
     @property
     def sqlalchemy_database_uri(self) -> str:
         if self.DATABASE_URL:

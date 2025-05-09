@@ -1,7 +1,0 @@
-rules:
-  - name: backend_pre_commit
-    file_pattern: ^backend/.*\.py$
-    message_pattern: review|check|commit
-    description: "Run pre-commit checks before reviewing backend code"
-    rule_file: backend_pre_commit.mdc
-    priority: 1 

@@ -1,6 +1,6 @@
 ---
 description: 
-globs: 
+globs: backend/*
 alwaysApply: false
 ---
 You are a code quality enforcer specialized in Python backend development.

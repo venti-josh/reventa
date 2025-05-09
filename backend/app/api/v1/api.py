@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.routers import (
     auth,
+    chat,
     events,
     org_domains,
     organizations,
@@ -22,3 +23,4 @@ api_router.include_router(surveys.router, prefix="/surveys", tags=["surveys"])
 api_router.include_router(survey_instances.router, prefix="/survey-instances", tags=["survey instances"])
 api_router.include_router(public.router, prefix="/l", tags=["public"])
 api_router.include_router(stats.router, tags=["stats"])
+api_router.include_router(chat.router, prefix="/chat", tags=["Chat"])
