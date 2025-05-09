@@ -41,4 +41,4 @@ ENV ENVIRONMENT=development
 
 # Run the application using uvicorn
 # Add --reload for development to auto-reload on code changes
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "main:app",  "--bind", "0.0.0.0:${PORT}", "--workers", "2", "--timeout", "120"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"] 
