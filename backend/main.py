@@ -26,3 +26,9 @@ app.include_router(api_router)  # Include all v1 API routers
 @app.get("/")
 async def root() -> dict[str, str]:
     return {"message": "Welcome to Reventa API"}
+
+
+# backend/app/main.py (or similar)
+@app.get("/healthz")
+def health() -> dict[str, bool]:
+    return {"ok": True}
