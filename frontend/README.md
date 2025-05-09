@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Typeform-Style Survey App
+
+A minimal, Typeform-style survey web app that communicates with an existing chat-based backend using Server-Sent Events (SSE).
+
+## Features
+
+- Single-question view showing one question at a time
+- Clean, minimalist interface with chat-like bubbles
+- History of previous questions and answers
+- Smooth scrolling to highlight new questions
+- Loading indicator during API requests
+- Skip option for any question
+- Real-time response streaming via SSE
 
 ## Getting Started
 
-First, run the development server:
+1. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
 
+2. Set up environment variables:
+   - Create a `.env` file in the frontend directory
+   - Add the following variables (adjust as needed):
+   ```
+   BACKEND_API_URL=http://localhost:3001/api/v1/chat
+   API_URL=http://localhost:3001/api
+   ```
+
+3. Run the development server:
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the survey.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## API Integration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The app connects to an existing chat-based backend using Server-Sent Events (SSE):
 
-## Learn More
+- Initial requests are sent with `?message=start` to initialize the survey
+- Each answer or "skip" action is sent as a query parameter
+- The server keeps the connection open and streams responses in real-time
+- When the server sends `{ "message": "done" }`, the survey concludes
 
-To learn more about Next.js, take a look at the following resources:
+### Server-Sent Events
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This application uses the EventSource API to establish persistent connections with the server, allowing for real-time streaming of responses. This provides several benefits:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Real-time updates without polling
+- Automatic reconnection if the connection is lost
+- Efficient one-way communication from server to client
 
-## Deploy on Vercel
+## Technologies Used
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- React with TypeScript
+- Next.js for server-side rendering and API routing
+- Tailwind CSS for styling 
