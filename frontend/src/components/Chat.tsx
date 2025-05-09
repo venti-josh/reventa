@@ -1,8 +1,71 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import useLocalStorage from "@/lib/useLocalStorage";
-import { Message, Messages } from "@/types";
+
+// Type definitions
+type MessageRole = 'user' | 'assistant';
+
+interface Message {
+  role: MessageRole;
+  content: string;
+}
+
+type Messages = Message[];
+
+// Custom hook for localStorage
+function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] {
+  // Get stored value from localStorage or use initialValue
+  const getStoredValue = (): T => {
+    if (typeof window === 'undefined') {
+      return initialValue;
+    }
+    
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error('Error reading from localStorage:', error);
+      return initialValue;
+    }
+  };
+
+  const [storedValue, setStoredValue] = useState<T>(getStoredValue);
+
+  // Update localStorage when storedValue changes
+  const setValue = (value: T | ((val: T) => T)) => {
+    try {
+      // Allow value to be a function
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      
+      // Save state
+      setStoredValue(valueToStore);
+      
+      // Save to localStorage
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      }
+    } catch (error) {
+      console.error('Error writing to localStorage:', error);
+    }
+  };
+
+  // Sync with other tabs/windows
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === key && e.newValue) {
+        setStoredValue(JSON.parse(e.newValue));
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [key]);
+
+  return [storedValue, setValue];
+}
 
 const Chat = () => {
   const [userInput, setUserInput] = useState("");
@@ -92,6 +155,7 @@ const Chat = () => {
       }
     } catch (err) {
       // on error, replace the assistant placeholder with an error message
+      console.error(err)
       updatedMessages = [
         ...updatedMessages.slice(0, -1),
         { ...assistantMessage, content: 'Sorry, there was an error.' },
