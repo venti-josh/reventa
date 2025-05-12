@@ -81,7 +81,7 @@ async def start_survey(
 
 
 @router.post("/responses/{response_id}/answer", response_model=NextQuestionOut)
-# ruff: noqa: PLR0912
+# ruff: noqa: PLR0912, PLR0915
 async def submit_answer(
     answer_in: AnswerIn,
     response_id: UUID = Path(...),
@@ -128,20 +128,23 @@ async def submit_answer(
 
     # Get the answer entry
     answer_entry = await survey_answer_crud.get_by_response_and_question(
-        db, response_id=response_id, question_idx=current_idx
+        db, response_id=response_id, question_idx=current_idx, is_followup=False
     )
 
     # If answer doesn't exist (should not happen) or it's a follow-up answer,
     # we need to check if we're currently handling a base question or follow-up
     is_answering_followup = False
-    if not answer_entry:
-        # Check if there's a follow-up for this question
-        if await survey_answer_crud.has_followup(db, response_id=response_id, question_idx=current_idx):
-            # We're answering a follow-up
-            is_answering_followup = True
-            answer_entry = await survey_answer_crud.get_by_response_and_question(
-                db, response_id=response_id, question_idx=current_idx, is_followup=True
-            )
+
+    # Check if there's a follow-up for this question and if it exists in the database
+    follow_up_entry = await survey_answer_crud.get_by_response_and_question(
+        db, response_id=response_id, question_idx=current_idx, is_followup=True
+    )
+
+    # Determine if we're answering a follow-up question
+    if follow_up_entry and not follow_up_entry.answer:
+        # We're answering a follow-up that exists but hasn't been answered yet
+        is_answering_followup = True
+        answer_entry = follow_up_entry
 
     # Update or create the answer
     answer_value = None if answer_in.skipped else answer_in.answer
@@ -153,6 +156,12 @@ async def submit_answer(
             db_obj=answer_entry,
             obj_in={"answer": answer_value},
         )
+
+        # If this was a follow-up question, mark it as answered
+        if is_answering_followup:
+            # Make sure we're handling a follow-up question
+            debug_msg = f"Processing follow-up answer: {answer_value} for question idx: {current_idx}"
+            print(debug_msg)  # This helps with debugging
     else:
         # This shouldn't happen with the current flow but handle it just in case
         await survey_answer_crud.create(
@@ -208,16 +217,29 @@ async def submit_answer(
     )
 
     if follow_up:
-        # Create a follow-up question entry
-        await survey_answer_crud.create(
-            db,
-            obj_in={
-                "response_id": response_id,
-                "question_idx": current_idx,
-                "question_text": follow_up,
-                "is_followup": True,
-            },
+        # Check if a follow-up question entry already exists
+        existing_followup = await survey_answer_crud.get_by_response_and_question(
+            db, response_id=response_id, question_idx=current_idx, is_followup=True
         )
+
+        if existing_followup:
+            # Update the existing follow-up instead of creating a new one
+            await survey_answer_crud.update(
+                db,
+                db_obj=existing_followup,
+                obj_in={"question_text": follow_up},
+            )
+        else:
+            # Create a new follow-up question entry
+            await survey_answer_crud.create(
+                db,
+                obj_in={
+                    "response_id": response_id,
+                    "question_idx": current_idx,
+                    "question_text": follow_up,
+                    "is_followup": True,
+                },
+            )
 
         # Return the follow-up question
         return NextQuestionOut(
