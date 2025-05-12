@@ -3,6 +3,9 @@ import { Bubble } from './Bubble';
 import { InputField } from './InputField';
 import { LoadingIndicator } from './LoadingIndicator';
 
+// API configuration
+const API_BASE_URL = process.env.API_URL || 'http://localhost:8000';
+
 // Add JSX namespace declaration to fix "JSX element implicitly has type 'any'" errors
 declare namespace JSX {
   interface IntrinsicElements {
@@ -65,7 +68,7 @@ export const Survey = ({ surveyInstanceId }: { surveyInstanceId: string }) => {
   const startSurvey = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/v1/survey-flow/instance/${surveyInstanceId}/start`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/survey-flow/instance/${surveyInstanceId}/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -98,7 +101,7 @@ export const Survey = ({ surveyInstanceId }: { surveyInstanceId: string }) => {
         { question: currentQuestion, answer: skipped ? "Skipped" : answer }
       ]);
 
-      const response = await fetch(`/api/v1/survey-flow/responses/${responseId}/answer`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/survey-flow/responses/${responseId}/answer`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
