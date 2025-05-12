@@ -1,12 +1,15 @@
 import React from 'react';
-import { Survey } from '../components/Survey';
 
-const SurveyPage = () => {
+const LandingPage = () => {
   return (
-    <div className="container mx-auto max-w-md h-screen">
-      <Survey surveyInstanceId="2b26de21-cd1f-4d4d-802c-3adebb31f8c4" />
+    <div className="container mx-auto max-w-md h-screen flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold mb-4">Survey Platform</h1>
+        <p className="mb-4">Please access your survey using the URL provided to you.</p>
+        <p className="text-sm text-gray-500">Format: /{'{survey_id}'}</p>
+      </div>
     </div>
   );
 };
 
-export default SurveyPage; 
+export default LandingPage; 

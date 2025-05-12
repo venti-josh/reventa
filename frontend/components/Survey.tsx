@@ -4,7 +4,7 @@ import { InputField } from './InputField';
 import { LoadingIndicator } from './LoadingIndicator';
 
 // API configuration
-const API_BASE_URL = process.env.API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.API_URL || 'https://reventa.onrender.com';
 
 // Add JSX namespace declaration to fix "JSX element implicitly has type 'any'" errors
 declare namespace JSX {
