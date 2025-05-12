@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from .org_allowed_domain import OrgAllowedDomain
     from .survey import Survey
     from .survey_instance import SurveyInstance
-    from .survey_response import SurveyResponse
     from .user import User
 
 
@@ -37,6 +36,3 @@ class Organization(Base):
         "SurveyInstance", back_populates="organization", cascade="all, delete-orphan"
     )
     links: Mapped[list["Link"]] = relationship("Link", back_populates="organization", cascade="all, delete-orphan")
-    survey_responses: Mapped[list["SurveyResponse"]] = relationship(
-        "SurveyResponse", back_populates="organization", cascade="all, delete-orphan"
-    )
