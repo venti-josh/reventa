@@ -3,18 +3,51 @@ import { Bubble } from './Bubble';
 import { InputField } from './InputField';
 import { LoadingIndicator } from './LoadingIndicator';
 
-type Message = {
-  id: string;
+// Add JSX namespace declaration to fix "JSX element implicitly has type 'any'" errors
+declare namespace JSX {
+  interface IntrinsicElements {
+    div: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
+    h2: React.DetailedHTMLProps<React.HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>;
+    p: React.DetailedHTMLProps<React.HTMLAttributes<HTMLParagraphElement>, HTMLParagraphElement>;
+    button: React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>;
+    label: React.DetailedHTMLProps<React.LabelHTMLAttributes<HTMLLabelElement>, HTMLLabelElement>;
+    input: React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
+    span: React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement>;
+  }
+}
+
+interface BubbleProps {
   type: 'question' | 'answer';
   content: string;
+}
+
+type Question = {
+  id: string;
+  text: string;
+  type: 'text' | 'multiple_choice' | 'checkbox' | 'rating';
+  choices?: string[];
+  min?: number;
+  max?: number;
 };
 
-export const Survey = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+type SurveyResponse = {
+  question: Question;
+  response_id: string;
+  done: boolean;
+};
+
+type HistoryItem = {
+  question: Question;
+  answer: any;
+};
+
+export const Survey = ({ surveyInstanceId }: { surveyInstanceId: string }) => {
+  const [responseId, setResponseId] = useState<string | null>(null);
+  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [done, setDone] = useState<boolean>(false);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -22,174 +55,125 @@ export const Survey = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [history, currentQuestion]);
 
   useEffect(() => {
     // Start the survey as soon as the page loads
-    sendMessage('start');
-    
-    // Clean up on unmount
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, []);
+    startSurvey();
+  }, [surveyInstanceId]);
 
-  const sendMessage = async (message: string) => {
+  const startSurvey = async () => {
     setLoading(true);
-    
-    // Abort any ongoing request
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    
-    // Create a new AbortController for this request
-    const abortController = new AbortController();
-    abortControllerRef.current = abortController;
-    
     try {
-      // First add the user answer to the messages if not the initial 'start' message
-      if (message !== 'start') {
-        setMessages(prev => [
-          ...prev,
-          { id: Date.now().toString(), type: 'answer', content: message }
-        ]);
-      }
-
-      // Make a POST request to the chat endpoint
-      const response = await fetch('http://localhost:8000/api/v1/chat', {
+      const response = await fetch(`/api/v1/survey-flow/instance/${surveyInstanceId}/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message }),
-        signal: abortController.signal
+        }
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to send message: ${response.status}`);
+        throw new Error(`Failed to start survey: ${response.status}`);
       }
 
-      if (!response.body) {
-        throw new Error('Response body is empty');
-      }
-
-      // Process the response as a stream
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      processingLoop: while (true) {
-        const { done, value } = await reader.read();
-        
-        if (value) {
-          const text = decoder.decode(value, { stream: true });
-          console.log('Received chunk:', text);
-          buffer += text;
-        }
-        
-        // Split buffer into potential event messages.
-        // An event message is terminated by double newlines.
-        let processableEventStrings = buffer.split('\n\n');
-        
-        if (!done) {
-          // If the stream is not yet done, the last item in processableEventStrings
-          // might be an incomplete event. So, we put it back into the buffer.
-          buffer = processableEventStrings.pop() || '';
-        } else {
-          // If the stream is done, all parts in processableEventStrings are considered complete.
-          // We clear the buffer as everything will be processed from processableEventStrings.
-          buffer = ''; 
-        }
-        
-        for (const eventString of processableEventStrings) {
-          if (!eventString.trim()) continue; 
-          
-          const lines = eventString.split('\n');
-          let eventType = '';
-          const eventDataLines: string[] = [];
-          
-          for (const line of lines) {
-            if (line.startsWith('event:')) {
-              eventType = line.substring(6).trim();
-            } else if (line.startsWith('data:')) {
-              eventDataLines.push(line.substring(5).trim());
-            }
-          }
-          const eventData = eventDataLines.join('\n');
-          
-          console.log('Processed event:', { eventType, eventData });
-          
-          if (eventType === 'message' && eventData) {
-            setMessages(prev => [
-              ...prev,
-              { id: Date.now().toString(), type: 'question', content: eventData }
-            ]);
-            setLoading(false);
-          } else if (eventType === 'done' || eventData === 'done') {
-            console.log('Received application-level "done" event');
-            setDone(true);
-            setLoading(false); // Ensure loading is also false
-            break processingLoop; // Exit the main stream reading loop
-          } else if (eventType === 'error') {
-            console.error('Error from server event:', eventData);
-            setMessages(prev => [
-              ...prev,
-              { 
-                id: Date.now().toString(), 
-                type: 'question', 
-                content: 'Sorry, something went wrong with the event stream. Please try again.' 
-              }
-            ]);
-            setLoading(false);
-          } else if (!eventType && eventData) {
-            // Handle case where event type might not be specified (data-only)
-            setMessages(prev => [
-              ...prev,
-              { id: Date.now().toString(), type: 'question', content: eventData }
-            ]);
-            setLoading(false);
-          }
-        }
-        
-        if (done) {
-          console.log('End of stream reached (reader.read() returned done:true)');
-          // If buffer still has content here, it implies a malformed stream ending.
-          // However, the logic above should have processed all valid events.
-          if (buffer.trim()) {
-             console.warn('Residual buffer content after stream ended:', buffer);
-          }
-          break; 
-        }
-      }
-      
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
-        console.log('Request was aborted');
-      } else {
-        console.error('Error communicating with server:', error);
-        setMessages(prev => [
-          ...prev,
-          { 
-            id: Date.now().toString(), 
-            type: 'question', 
-            content: 'Sorry, something went wrong. Please try again.' 
-          }
-        ]);
-      }
+      const data: SurveyResponse = await response.json();
+      setResponseId(data.response_id);
+      setCurrentQuestion(data.question);
+    } catch (error) {
+      console.error('Error starting survey:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = (answer: string) => {
-    if (answer.trim() === '') return;
-    sendMessage(answer);
+  const submitAnswer = async (answer: any, skipped = false) => {
+    if (!responseId || !currentQuestion) return;
+    
+    setLoading(true);
+    
+    try {
+      // Add the question and answer to history
+      setHistory((prev: HistoryItem[]) => [
+        ...prev,
+        { question: currentQuestion, answer: skipped ? "Skipped" : answer }
+      ]);
+
+      const response = await fetch(`/api/v1/survey-flow/responses/${responseId}/answer`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          question_id: currentQuestion.id,
+          answer: skipped ? null : { value: answer },
+          skipped: skipped
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to submit answer: ${response.status}`);
+      }
+
+      const data: SurveyResponse = await response.json();
+      
+      if (data.done) {
+        setDone(true);
+      } else {
+        setCurrentQuestion(data.question);
+      }
+    } catch (error) {
+      console.error('Error submitting answer:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSkip = () => {
-    sendMessage('skip');
+    submitAnswer(null, true);
+  };
+
+  const renderQuestion = () => {
+    if (!currentQuestion) return null;
+
+    switch (currentQuestion.type) {
+      case 'text':
+        return <InputField onSubmit={(answer) => submitAnswer(answer)} />;
+      
+      case 'multiple_choice':
+        return (
+          <div className="flex flex-col space-y-2 mt-2">
+            {currentQuestion.choices?.map((choice: string) => (
+              <button 
+                key={choice}
+                className="p-2 border border-gray-300 rounded hover:bg-gray-100"
+                onClick={() => submitAnswer(choice)}
+              >
+                {choice}
+              </button>
+            ))}
+          </div>
+        );
+      
+      case 'checkbox':
+        return (
+          <CheckboxGroup 
+            choices={currentQuestion.choices || []} 
+            onSubmit={(selectedItems) => submitAnswer(selectedItems)}
+          />
+        );
+      
+      case 'rating':
+        return (
+          <RatingInput 
+            min={currentQuestion.min || 1} 
+            max={currentQuestion.max || 5} 
+            onSubmit={(rating) => submitAnswer(rating)}
+          />
+        );
+      
+      default:
+        return <InputField onSubmit={(answer) => submitAnswer(answer)} />;
+    }
   };
 
   if (done) {
@@ -206,20 +190,35 @@ export const Survey = () => {
   return (
     <div className="flex flex-col min-h-screen p-4 bg-white">
       <div className="flex-1 overflow-y-auto mb-4">
-        {messages.map((message) => (
-          <Bubble 
-            key={message.id} 
-            type={message.type} 
-            content={message.content} 
-          />
+        {/* Display history */}
+        {history.map((item, index) => (
+          <React.Fragment key={index}>
+            <Bubble 
+              type="question"
+              content={item.question.text}
+            />
+            <Bubble 
+              type="answer"
+              content={typeof item.answer === 'object' ? JSON.stringify(item.answer) : item.answer.toString()}
+            />
+          </React.Fragment>
         ))}
+
+        {/* Display current question */}
+        {currentQuestion && !loading && (
+          <Bubble 
+            type="question"
+            content={currentQuestion.text}
+          />
+        )}
+
         {loading && <LoadingIndicator />}
         <div ref={messagesEndRef} />
       </div>
       
-      {!loading && messages.length > 0 && (
+      {!loading && currentQuestion && (
         <div className="sticky bottom-0 bg-white pt-2">
-          <InputField onSubmit={handleSubmit} />
+          {renderQuestion()}
           <button 
             onClick={handleSkip}
             className="text-gray-500 text-sm mt-2 mx-auto block hover:underline focus:outline-none"
@@ -230,6 +229,81 @@ export const Survey = () => {
           </button>
         </div>
       )}
+    </div>
+  );
+};
+
+// Helper components for different question types
+
+type CheckboxGroupProps = {
+  choices: string[];
+  onSubmit: (selected: string[]) => void;
+};
+
+const CheckboxGroup = ({ choices, onSubmit }: CheckboxGroupProps) => {
+  const [selected, setSelected] = useState<string[]>([]);
+  
+  const toggleItem = (item: string) => {
+    setSelected(prev => 
+      prev.includes(item)
+        ? prev.filter(i => i !== item)
+        : [...prev, item]
+    );
+  };
+  
+  return (
+    <div className="flex flex-col space-y-2">
+      {choices.map(choice => (
+        <label key={choice} className="flex items-center space-x-2 cursor-pointer">
+          <input 
+            type="checkbox" 
+            checked={selected.includes(choice)}
+            onChange={() => toggleItem(choice)}
+            className="h-5 w-5"
+          />
+          <span>{choice}</span>
+        </label>
+      ))}
+      <button 
+        onClick={() => onSubmit(selected)}
+        className="mt-4 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+        disabled={selected.length === 0}
+      >
+        Submit
+      </button>
+    </div>
+  );
+};
+
+type RatingInputProps = {
+  min: number;
+  max: number;
+  onSubmit: (rating: number) => void;
+};
+
+const RatingInput = ({ min, max, onSubmit }: RatingInputProps) => {
+  const [rating, setRating] = useState<number | null>(null);
+  
+  return (
+    <div className="flex flex-col space-y-4">
+      <div className="flex justify-between">
+        {Array.from({ length: max - min + 1 }, (_, i) => min + i).map(num => (
+          <button 
+            key={num}
+            className={`h-10 w-10 rounded-full border ${rating === num ? 'bg-blue-500 text-white' : 'border-gray-300'}`}
+            onClick={() => setRating(num)}
+          >
+            {num}
+          </button>
+        ))}
+      </div>
+      <button 
+        onClick={() => rating !== null && onSubmit(rating)}
+        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+        disabled={rating === null}
+      >
+        Submit
+      </button>
     </div>
   );
 }; 

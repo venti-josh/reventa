@@ -8,6 +8,7 @@ from app.routers import (
     organizations,
     public,
     stats,
+    survey_flow,
     survey_instances,
     surveys,
 )
@@ -21,6 +22,7 @@ api_router.include_router(org_domains.router, prefix="/org/domains", tags=["orga
 api_router.include_router(events.router, prefix="/events", tags=["events"])
 api_router.include_router(surveys.router, prefix="/surveys", tags=["surveys"])
 api_router.include_router(survey_instances.router, prefix="/survey-instances", tags=["survey instances"])
+api_router.include_router(survey_flow.router, prefix="/survey-flow", tags=["survey flow"])
 api_router.include_router(public.router, prefix="/l", tags=["public"])
 api_router.include_router(stats.router, tags=["stats"])
 api_router.include_router(chat.router, prefix="/chat", tags=["Chat"])

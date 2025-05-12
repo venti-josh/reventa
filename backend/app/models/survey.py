@@ -10,7 +10,9 @@ from app.db.base_class import Base
 from app.models.organization import Organization
 
 if TYPE_CHECKING:
+    from .organization import Organization
     from .survey_instance import SurveyInstance
+    from .survey_response import SurveyResponse
 
 
 class Survey(Base):
@@ -26,4 +28,8 @@ class Survey(Base):
     # Must use string reference to avoid circular import with SurveyInstance
     survey_instances: Mapped[list["SurveyInstance"]] = relationship(
         "SurveyInstance", back_populates="survey", cascade="all, delete-orphan"
+    )
+    # Must use string reference to avoid circular import with SurveyResponse
+    survey_responses: Mapped[list["SurveyResponse"]] = relationship(
+        "SurveyResponse", back_populates="survey", cascade="all, delete-orphan"
     )

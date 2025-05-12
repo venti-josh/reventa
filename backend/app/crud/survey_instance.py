@@ -10,12 +10,16 @@ from app.schemas.survey_instance import SurveyInstanceCreate, SurveyInstanceUpda
 
 
 class CRUDSurveyInstance(CRUDBase[SurveyInstance, SurveyInstanceCreate, SurveyInstanceUpdate]):
-    async def get_by_org_id(self, db: AsyncSession, *, org_id: UUID) -> Sequence[SurveyInstance]:
-        result = await db.execute(select(SurveyInstance).where(SurveyInstance.org_id == org_id))
-        return result.scalars().all()
+    """CRUD operations for SurveyInstance."""
 
     async def get_by_survey_id(self, db: AsyncSession, *, survey_id: UUID) -> Sequence[SurveyInstance]:
-        result = await db.execute(select(SurveyInstance).where(SurveyInstance.survey_id == survey_id))
+        """Get all survey instances for a given survey ID."""
+        query = select(self.model).where(self.model.survey_id == survey_id)
+        result = await db.execute(query)
+        return result.scalars().all()
+
+    async def get_by_org_id(self, db: AsyncSession, *, org_id: UUID) -> Sequence[SurveyInstance]:
+        result = await db.execute(select(SurveyInstance).where(SurveyInstance.org_id == org_id))
         return result.scalars().all()
 
     async def get_by_event_id(self, db: AsyncSession, *, event_id: UUID) -> Sequence[SurveyInstance]:
