@@ -48,5 +48,12 @@ class CRUDSurveyResponse(CRUDBase[SurveyResponse, SurveyResponseCreate, SurveyRe
         await db.commit()
         return response
 
+    async def get_by_survey_instance_id(
+        self, db: AsyncSession, *, survey_instance_id: UUID
+    ) -> Sequence[SurveyResponse]:
+        """Get all responses for a specific survey instance."""
+        result = await db.execute(select(SurveyResponse).where(SurveyResponse.survey_instance_id == survey_instance_id))
+        return result.scalars().all()
+
 
 survey_response_crud = CRUDSurveyResponse(SurveyResponse)

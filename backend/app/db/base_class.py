@@ -11,3 +11,6 @@ class Base(DeclarativeBase):
     @declared_attr.directive
     def __tablename__(cls) -> str:  # noqa: N805
         return cls.__name__.lower()
+
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} {self.id}>"
