@@ -11,7 +11,7 @@ from app.db.session import get_async_session
 from app.schemas.survey_flow import (
     AnswerIn,
     NextQuestionOut,
-    Question,
+    QuestionResponse,
     SurveyStartOut,
 )
 from app.services.followup_service import get_followup_question
@@ -72,7 +72,7 @@ async def start_survey(
     # Return the response ID and first question
     return SurveyStartOut(
         response_id=survey_response.id,
-        question=Question(
+        question=QuestionResponse(
             text=first_question.get("text", ""),
             type=first_question.get("type", "text"),
             choices=first_question.get("choices"),
@@ -125,6 +125,7 @@ async def submit_answer(
     # Get the current question
     current_base_question = questions[current_idx]
     current_question_text = current_base_question.get("text", "")
+    current_question_description = current_base_question.get("description", "")
 
     # Get the answer entry
     answer_entry = await survey_answer_crud.get_by_response_and_question(
@@ -201,7 +202,7 @@ async def submit_answer(
         )
 
         return NextQuestionOut(
-            question=Question(
+            question=QuestionResponse(
                 text=next_question.get("text", ""),
                 type=next_question.get("type", "text"),
                 choices=next_question.get("choices"),
@@ -214,6 +215,7 @@ async def submit_answer(
         survey_description=survey_description,
         question_text=current_question_text,
         participant_answer=answer_value,
+        question_description=current_question_description,
     )
 
     if follow_up:
@@ -243,7 +245,7 @@ async def submit_answer(
 
         # Return the follow-up question
         return NextQuestionOut(
-            question=Question(
+            question=QuestionResponse(
                 text=follow_up,
                 type="text",  # Follow-ups are always free text
                 choices=None,
@@ -274,7 +276,7 @@ async def submit_answer(
         )
 
         return NextQuestionOut(
-            question=Question(
+            question=QuestionResponse(
                 text=next_question.get("text", ""),
                 type=next_question.get("type", "text"),
                 choices=next_question.get("choices"),

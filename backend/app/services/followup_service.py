@@ -10,7 +10,10 @@ logger = logging.getLogger(__name__)
 
 
 async def get_followup_question(
-    survey_description: str, question_text: str, participant_answer: dict[str, Any] | None
+    survey_description: str,
+    question_text: str,
+    participant_answer: dict[str, Any] | None,
+    question_description: str = "",
 ) -> str | None:
     """
     Determine if a follow-up question is needed based on the participant's answer.
@@ -19,6 +22,7 @@ async def get_followup_question(
         survey_description: Description of the survey purpose
         question_text: Original question text
         participant_answer: Participant's answer to the original question
+        question_description: Additional context about the question's purpose
 
     Returns:
         A follow-up question string or None if no follow-up is needed
@@ -53,6 +57,13 @@ async def get_followup_question(
         Survey topic: {survey_description}
         
         Original question: {question_text}
+        """
+
+        # Add question description if available
+        if question_description:
+            human_prompt += f"\n\nQuestion context: {question_description}"
+
+        human_prompt += f"""
         
         Participant's answer: {participant_answer}
         

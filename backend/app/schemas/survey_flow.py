@@ -12,6 +12,15 @@ class Question(BaseModel):
     text: str
     type: str
     choices: list[str] | None = None
+    description: str = ""
+
+
+class QuestionResponse(BaseModel):
+    """Schema for question sent to frontend in API responses"""
+
+    text: str
+    type: str
+    choices: list[str] | None = None
 
 
 # SurveyResponse schemas
@@ -85,7 +94,7 @@ class SurveyStartOut(BaseModel):
     """Response schema for starting a survey"""
 
     response_id: uuid.UUID
-    question: Question
+    question: QuestionResponse
 
 
 class AnswerIn(BaseModel):
@@ -99,4 +108,4 @@ class NextQuestionOut(BaseModel):
     """Response schema for the next question"""
 
     done: bool = False
-    question: Question | None = None
+    question: QuestionResponse | None = None
