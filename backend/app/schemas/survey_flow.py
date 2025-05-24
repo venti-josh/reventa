@@ -13,6 +13,7 @@ class Question(BaseModel):
     type: str
     choices: list[str] | None = None
     description: str = ""
+    can_followup: bool = True
 
 
 class QuestionResponse(BaseModel):

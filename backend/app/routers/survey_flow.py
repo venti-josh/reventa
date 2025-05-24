@@ -211,12 +211,19 @@ async def submit_answer(
 
     # If not skipped and not a follow-up, check if we need a follow-up question
     survey_description = survey.title
-    follow_up = await get_followup_question(
-        survey_description=survey_description,
-        question_text=current_question_text,
-        participant_answer=answer_value,
-        question_description=current_question_description,
-    )
+
+    # Check if this question allows follow-ups
+    can_followup = current_base_question.get("can_followup", True)
+
+    # Only generate follow-up if the question allows it
+    follow_up = None
+    if can_followup:
+        follow_up = await get_followup_question(
+            survey_description=survey_description,
+            question_text=current_question_text,
+            participant_answer=answer_value,
+            question_description=current_question_description,
+        )
 
     if follow_up:
         # Check if a follow-up question entry already exists
