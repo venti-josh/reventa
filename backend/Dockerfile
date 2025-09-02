@@ -29,15 +29,15 @@ ENV PORT=${PORT:-8000}
 EXPOSE ${PORT}
 
 # Define environment variables (can be overridden by docker-compose)
-ENV DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres/reventa
+# ENV DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres/reventa
 # Change this in production!
-ENV SECRET_KEY=your_secret_key_here
-ENV ACCESS_TOKEN_EXPIRE_MINUTES=30
-ENV POSTGRES_SERVER=postgres
-ENV POSTGRES_USER=postgres
-ENV POSTGRES_PASSWORD=postgres
-ENV POSTGRES_DB=reventa
-ENV ENVIRONMENT=development
+ENV SECRET_KEY=${SECRET_KEY:-your_secret_key_here}
+ENV ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+ENV POSTGRES_SERVER=${POSTGRES_SERVER:-dpg-d2rj6t24d50c73bvivkg-a.oregon-postgres.render.com}
+ENV POSTGRES_USER=${POSTGRES_USER:-reventa_3zq8_user}
+ENV POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-UqdRJ3cOkn5X2CvZyoK0jHeMIPwg5sGV}
+ENV POSTGRES_DB=${POSTGRES_DB:-reventa_3zq8}
+ENV ENVIRONMENT=${ENVIRONMENT:-development}
 
 # Run the application using uvicorn
 # Add --reload for development to auto-reload on code changes
