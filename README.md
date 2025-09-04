@@ -150,7 +150,44 @@ The API is organized under the `/api/v1` prefix with the following endpoints:
 
 ### Running Tests
 
-(Add instructions for running tests once they are set up)
+The backend follows a test-first development approach. The API contract is defined by a comprehensive test suite before actual implementation.
+
+#### Test Structure
+
+```
+backend/tests/
+├── conftest.py       # Common test fixtures
+└── api/v1/endpoints/ # API endpoint tests
+    ├── test_auth.py
+    ├── test_org_domains.py
+    ├── test_events.py
+    ├── test_surveys.py
+    ├── test_survey_instances.py
+    ├── test_public.py
+    └── test_stats.py
+```
+
+#### Running Tests
+
+All tests should be run from within the `backend` directory:
+
+```bash
+# Run all API endpoint tests
+python -m pytest tests/api/v1/endpoints/ --asyncio-mode=auto
+
+# Run with verbose output
+python -m pytest tests/api/v1/endpoints/ --asyncio-mode=auto -v
+
+# Run specific test file
+python -m pytest tests/api/v1/endpoints/test_auth.py --asyncio-mode=auto
+```
+
+#### Test Development Workflow
+
+1. All tests are currently marked with `@pytest.mark.xfail(reason="endpoint not implemented")` so they pass as skipped tests.
+2. When implementing an endpoint, first create the endpoint following the contract defined in the tests.
+3. Then remove the `xfail` marker from the corresponding test(s).
+4. Run the tests to verify your implementation meets the requirements.
 
 ## Frontend
 
